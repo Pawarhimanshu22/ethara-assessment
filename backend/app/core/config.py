@@ -1,10 +1,19 @@
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 from functools import lru_cache
 
 
 class Settings(BaseSettings):
     # Database
     DATABASE_URL: str
+
+    @field_validator("DATABASE_URL")
+    @classmethod
+    def _normalize_db_url(cls, v: str) -> str:
+        # Managed hosts (Render/Heroku) hand out "postgres://" — SQLAlchemy needs "postgresql://".
+        if v.startswith("postgres://"):
+            v = v.replace("postgres://", "postgresql://", 1)
+        return v
 
     # JWT
     JWT_SECRET_KEY: str

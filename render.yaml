@@ -1,0 +1,39 @@
+# Render blueprint — backend API + managed Postgres.
+# Deploy: Render Dashboard → New → Blueprint → connect this repo.
+databases:
+  - name: ethara-db
+    plan: free
+    databaseName: ethara_db
+    user: ethara_user
+
+services:
+  - type: web
+    name: ethara-backend
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # Applies DB migrations, then starts the API on Render's $PORT.
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ethara-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: AI_PROVIDER
+        value: fallback
+      - key: APP_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: "3.12.6"
+      # Set this to your Vercel frontend URL after the frontend is deployed,
+      # e.g. https://ethara-assessment.vercel.app  (comma-separated for multiple).
+      - key: CORS_ORIGINS
+        sync: false
