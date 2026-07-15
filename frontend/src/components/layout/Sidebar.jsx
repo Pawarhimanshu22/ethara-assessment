@@ -75,6 +75,7 @@ export default function Sidebar({ open, onNavigate }) {
               <NavLink
                 key={item.to}
                 to={item.to}
+                end
                 onClick={onNavigate}
                 className={({ isActive }) =>
                   clsx(
