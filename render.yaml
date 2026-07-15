@@ -13,8 +13,9 @@ services:
     rootDir: backend
     plan: free
     buildCommand: pip install -r requirements.txt
-    # Applies DB migrations, then starts the API on Render's $PORT.
-    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # Ensure tables exist + seed once if empty (free tier has no Shell/Jobs),
+    # then start the API on Render's $PORT.
+    startCommand: python -m scripts.bootstrap && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
