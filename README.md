@@ -9,6 +9,29 @@ natural-language AI assistant for ad-hoc questions.
 - **Frontend:** React 19 · Vite · Tailwind CSS v4 · Zustand · React Router 7 · Axios · Recharts
 - **AI Assistant:** rule-based intent parser over the live database (no external API key required)
 
+## 🚀 Live demo
+
+| | URL |
+|---|---|
+| **Frontend** | https://frontend-lake-one-62.vercel.app |
+| **Backend API** | https://ethara-backend-9kbg.onrender.com |
+| **API docs (Swagger)** | https://ethara-backend-9kbg.onrender.com/docs |
+
+**Login:** `admin@ethara.ai` / `Admin@123` (Admin) · `hr@ethara.ai` / `Hr@12345` (HR)
+
+> Free-tier backend sleeps after ~15 min idle — the first request wakes it (~50s), then it's fast.
+
+## 📚 Documentation
+
+| Doc | What's inside |
+|-----|---------------|
+| [DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md) | Tables, columns, relationships, how the business rules are enforced |
+| [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) | Every endpoint, auth, request/response, examples |
+| [AI_PROMPTS.md](./AI_PROMPTS.md) | Prompts used, what AI got right/wrong, manual fixes, verification |
+| [DEBUGGING_NOTES.md](./DEBUGGING_NOTES.md) | Real bugs found + root-cause fixes |
+| [DEPLOYMENT_NOTES.md](./DEPLOYMENT_NOTES.md) | Vercel + Render setup, env vars, live URLs |
+| [screenshots/](./screenshots/) | UI screenshots |
+
 ---
 
 ## Repository layout
