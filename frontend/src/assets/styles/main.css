@@ -1,0 +1,281 @@
+@import "tailwindcss";
+
+/* ==========================================
+   Ethara Design System — Tailwind v4 theme
+   Source: Ethara Seat Allocation design
+   Fonts: Space Grotesk (display) + Public Sans (body)
+   Brand: Indigo #4f46e5
+========================================== */
+
+@theme {
+  /* Fonts */
+  --font-sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", var(--font-sans);
+
+  /* Brand — Indigo */
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e2ff;
+  --color-brand-200: #c7c9ff;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-brand-800: #312a9c;
+
+  /* Surface / ink ramp (design greys) */
+  --color-surface-50: #fafafd;
+  --color-surface-100: #f0f0f5;
+  --color-surface-200: #e7e7ef;
+  --color-surface-300: #b9b9cb;
+  --color-surface-400: #9394ab;
+  --color-surface-500: #6b6c86;
+  --color-surface-600: #55566f;
+  --color-surface-700: #33344d;
+  --color-surface-800: #232438;
+  --color-surface-900: #14152a;
+
+  /* App canvas + dark console (sidebar / login) */
+  --color-canvas: #f5f5f8;
+  --color-ink: #0e0f22;
+  --color-ink-200: #16172e;
+  --color-ink-300: #1c1d36;
+  --color-ink-400: #24253f;
+  --color-ink-border: #2a2b47;
+
+  /* Status — available / active */
+  --color-success: #059669;
+  --color-success-bg: #ecfdf5;
+  --color-success-dot: #10b981;
+  --color-success-border: #a7f3d0;
+  /* occupied */
+  --color-danger: #e11d48;
+  --color-danger-bg: #fff1f3;
+  --color-danger-dot: #fb7185;
+  --color-danger-border: #fecdd3;
+  /* reserved / pending */
+  --color-warning: #b45309;
+  --color-warning-bg: #fffbeb;
+  --color-warning-dot: #f59e0b;
+  --color-warning-border: #fde68a;
+  /* maintenance / inactive */
+  --color-neutral: #475569;
+  --color-neutral-bg: #f1f5f9;
+  --color-neutral-dot: #94a3b8;
+  --color-neutral-border: #e2e8f0;
+  /* purple accent (pending joiners) */
+  --color-accent-purple: #9333ea;
+  --color-accent-purple-bg: #faf5ff;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 11px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+
+  /* Shadow */
+  --shadow-card: 0 1px 2px rgba(20, 21, 42, 0.04);
+  --shadow-popover: 0 12px 30px rgba(14, 15, 34, 0.14);
+  --shadow-modal: 0 24px 60px rgba(14, 15, 34, 0.3);
+  --shadow-nav: 0 6px 16px rgba(79, 70, 229, 0.35);
+}
+
+/* ==========================================
+   Base — inside @layer base so Tailwind utility
+   classes (text-white, text-*, etc.) always win
+   over these element defaults.
+========================================== */
+
+@layer base {
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-surface-900);
+  background: var(--color-canvas);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-surface-900);
+}
+
+p {
+  margin: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+  color: var(--color-brand-600);
+}
+a:hover {
+  color: var(--color-brand-700);
+}
+
+/* ==========================================
+   Scrollbar / selection / focus
+========================================== */
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6d6e2;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-surface-300);
+}
+
+::selection {
+  background: var(--color-brand-600);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+}
+
+} /* end @layer base */
+
+/* ==========================================
+   Utilities
+========================================== */
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+.shadow-popover {
+  box-shadow: var(--shadow-popover);
+}
+.shadow-modal {
+  box-shadow: var(--shadow-modal);
+}
+
+/* ==========================================
+   Animations
+========================================== */
+
+.animate-fadeup {
+  animation: fadeUp 0.4s ease;
+}
+.animate-pop {
+  animation: pop 0.25s ease;
+}
+.animate-toast-in {
+  animation: toastIn 0.3s ease;
+}
+.animate-overlay-in {
+  animation: overlayIn 0.2s ease;
+}
+
+/* legacy aliases (kept for existing class usage) */
+.fade-in {
+  animation: fadeUp 0.4s ease;
+}
+.scale-in {
+  animation: pop 0.25s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
