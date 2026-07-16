@@ -58,7 +58,8 @@ export default function SeatManagementPage() {
     if (status === SEAT_STATUS.AVAILABLE) {
       setAllocateTarget(seat)
     } else if (status === SEAT_STATUS.OCCUPIED) {
-      toast.info(`Seat ${seat.seat_number} — ${seat.employee_name || 'occupied'}`)
+      // Open the release modal so an occupied seat can be freed
+      setReleaseTarget(seat)
     } else if (status === SEAT_STATUS.RESERVED) {
       toast.info(`Seat ${seat.seat_number} is reserved — change status to allocate`)
     } else {

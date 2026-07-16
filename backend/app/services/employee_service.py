@@ -114,7 +114,12 @@ def update_employee(db: Session, employee_id: int, payload: EmployeeUpdate) -> E
     return employee_repo.update(db, employee, update_data)
 
 
-def deactivate_employee(db: Session, employee_id: int) -> Employee:
+def delete_employee(db: Session, employee_id: int) -> str:
+    """
+    Hard-delete an employee. Frees their active seat first (so it becomes AVAILABLE again),
+    then removes the employee and their allocation history. Returns the deleted name.
+    Because the row is removed, the dashboard employee count drops immediately.
+    """
     employee = get_employee(db, employee_id)
 
     from app.repositories import allocation_repo
@@ -122,7 +127,9 @@ def deactivate_employee(db: Session, employee_id: int) -> Employee:
 
     active_allocation = allocation_repo.get_active_by_employee(db, employee_id)
     if active_allocation:
-        # Auto-release their seat on deactivation so it doesn't stay locked forever
+        # Release their seat first so it doesn't stay locked forever
         seat_service.release_seat(db, employee_id)
 
-    return employee_repo.soft_delete(db, employee)
+    name = employee.name
+    employee_repo.delete(db, employee)
+    return name

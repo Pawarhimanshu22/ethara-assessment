@@ -10,6 +10,7 @@ import EmployeeFilters from '../components/employee/EmployeeFilters'
 import EmployeeTable from '../components/employee/EmployeeTable'
 import EmployeeForm from '../components/employee/EmployeeForm'
 import EmployeeDetailPanel from '../components/employee/EmployeeDetailPanel'
+import ConfirmDialog from '../components/common/ConfirmDialog'
 import { useApiState } from '../hooks/useApiState'
 import { usePagination } from '../hooks/usePagination'
 import { useDebounce } from '../hooks/useDebounce'
@@ -34,6 +35,8 @@ export default function EmployeeListPage() {
   const [submitting, setSubmitting] = useState(false)
   const [detailEmployee, setDetailEmployee] = useState(null)
   const [releasing, setReleasing] = useState(false)
+  const [confirmDeleteEmployee, setConfirmDeleteEmployee] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   const queryParams = useMemo(
     () => ({
@@ -91,6 +94,23 @@ export default function EmployeeListPage() {
       toast.error(err.message || 'Could not save employee. Please check the details and try again.')
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    const employee = confirmDeleteEmployee
+    if (!employee) return
+    setDeleting(true)
+    try {
+      await employeeService.deactivate(employee.id)
+      toast.success(`${employee.name} deleted.`)
+      setConfirmDeleteEmployee(null)
+      setDetailEmployee(null)
+      refetch()
+    } catch (err) {
+      toast.error(err.message || 'Could not delete this employee.')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -163,9 +183,26 @@ export default function EmployeeListPage() {
         employee={detailEmployee}
         canManage={canManage}
         releasing={releasing}
+        deleting={deleting}
         onClose={() => setDetailEmployee(null)}
         onEdit={openEdit}
         onRelease={handleRelease}
+        onDelete={setConfirmDeleteEmployee}
+      />
+
+      <ConfirmDialog
+        open={!!confirmDeleteEmployee}
+        onClose={() => setConfirmDeleteEmployee(null)}
+        onConfirm={handleDelete}
+        title="Delete this employee?"
+        message={
+          confirmDeleteEmployee
+            ? `${confirmDeleteEmployee.name} will be permanently removed. Any allocated seat is released and becomes available. This cannot be undone.`
+            : ''
+        }
+        confirmLabel="Delete employee"
+        variant="danger"
+        loading={deleting}
       />
 
       <Modal

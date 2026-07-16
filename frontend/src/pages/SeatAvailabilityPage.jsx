@@ -5,6 +5,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner'
 import ErrorState from '../components/common/ErrorState'
 import SeatGrid from '../components/seat/SeatGrid'
 import SeatStatusLegend from '../components/seat/SeatStatusLegend'
+import SeatDetailModal from '../components/seat/SeatDetailModal'
 import { useApiState } from '../hooks/useApiState'
 import { seatService } from '../api/seatService'
 import { FLOORS, ZONES } from '../utils/constants'
@@ -12,17 +13,23 @@ import { FLOORS, ZONES } from '../utils/constants'
 export default function SeatAvailabilityPage() {
   const [floor, setFloor] = useState('')
   const [zone, setZone] = useState('')
+  const [selectedSeat, setSelectedSeat] = useState(null)
 
-  const params = useMemo(() => ({ floor: floor || undefined, zone: zone || undefined }), [floor, zone])
+  // Load ALL seats (with occupant info) so clicking a seat reveals who it's assigned to,
+  // not just the open ones.
+  const params = useMemo(
+    () => ({ floor: floor || undefined, zone: zone || undefined, page_size: 6000 }),
+    [floor, zone]
+  )
 
   const { data: seatsResp, loading, error, refetch } = useApiState(
-    () => seatService.available(params),
+    () => seatService.list(params),
     [JSON.stringify(params)]
   )
   const seats = seatsResp?.items || seatsResp?.results || seatsResp || []
 
   return (
-    <AppLayout title="Seat Availability" subtitle="Read-only view of open and held seats">
+    <AppLayout title="Seat Availability" subtitle="Click any seat to see its status and who it's assigned to">
       <div className="space-y-3.5">
         <div className="flex flex-wrap items-center gap-2.5">
           <Select
@@ -46,18 +53,24 @@ export default function SeatAvailabilityPage() {
             <h3 className="font-display text-[15px] font-semibold text-surface-900">
               {floor || 'All floors'} · Availability
             </h3>
-            <span className="text-[12px] text-surface-400">Read-only view</span>
+            <span className="text-[12px] text-surface-400">Click a seat for details</span>
           </div>
 
           {loading ? (
-            <LoadingSpinner label="Loading available seats..." />
+            <LoadingSpinner label="Loading seats..." />
           ) : error ? (
             <ErrorState message={error} onRetry={refetch} />
           ) : (
-            <SeatGrid seats={seats} selectable={false} />
+            <SeatGrid seats={seats} onSeatClick={setSelectedSeat} />
           )}
         </div>
       </div>
+
+      <SeatDetailModal
+        open={!!selectedSeat}
+        onClose={() => setSelectedSeat(null)}
+        seat={selectedSeat}
+      />
     </AppLayout>
   )
 }

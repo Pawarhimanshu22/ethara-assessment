@@ -49,8 +49,10 @@ export default function EmployeeDetailPanel({
   onClose,
   onEdit,
   onRelease,
+  onDelete,
   canManage = false,
   releasing = false,
+  deleting = false,
 }) {
   useEffect(() => {
     if (!open) return
@@ -133,22 +135,31 @@ export default function EmployeeDetailPanel({
 
         {/* Footer */}
         {canManage && (
-          <div className="flex gap-2.5 border-t border-surface-100 px-[22px] py-4">
-            <button
-              onClick={() => onEdit?.(employee)}
-              className="flex h-[38px] flex-1 items-center justify-center rounded-[10px] border border-surface-200 bg-white text-[13px] font-semibold text-surface-700 hover:bg-surface-50"
-            >
-              Edit details
-            </button>
-            {hasSeat && (
+          <div className="flex flex-col gap-2.5 border-t border-surface-100 px-[22px] py-4">
+            <div className="flex gap-2.5">
               <button
-                onClick={() => onRelease?.(employee)}
-                disabled={releasing}
-                className="flex h-[38px] flex-1 items-center justify-center rounded-[10px] border border-danger-border bg-white text-[13px] font-semibold text-danger hover:bg-danger-bg disabled:opacity-50"
+                onClick={() => onEdit?.(employee)}
+                className="flex h-[38px] flex-1 items-center justify-center rounded-[10px] border border-surface-200 bg-white text-[13px] font-semibold text-surface-700 hover:bg-surface-50"
               >
-                {releasing ? 'Releasing…' : 'Release seat'}
+                Edit details
               </button>
-            )}
+              {hasSeat && (
+                <button
+                  onClick={() => onRelease?.(employee)}
+                  disabled={releasing}
+                  className="flex h-[38px] flex-1 items-center justify-center rounded-[10px] border border-danger-border bg-white text-[13px] font-semibold text-danger hover:bg-danger-bg disabled:opacity-50"
+                >
+                  {releasing ? 'Releasing…' : 'Release seat'}
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => onDelete?.(employee)}
+              disabled={deleting}
+              className="flex h-[38px] w-full items-center justify-center rounded-[10px] bg-danger text-[13px] font-semibold text-white hover:opacity-90 disabled:opacity-50"
+            >
+              {deleting ? 'Deleting…' : 'Delete employee'}
+            </button>
           </div>
         )}
       </div>

@@ -5,6 +5,7 @@ import AppLayout from '../components/layout/AppLayout'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import ErrorState from '../components/common/ErrorState'
 import Button from '../components/common/Button'
+import ConfirmDialog from '../components/common/ConfirmDialog'
 import { useApiState } from '../hooks/useApiState'
 import { useToast } from '../hooks/useToast'
 import { useAuth } from '../context/AuthContext'
@@ -60,11 +61,26 @@ export default function EmployeeDetailPage() {
   const { role } = useAuth()
   const canManage = MANAGER_ROLES.includes(role)
   const [releasing, setReleasing] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const { data: employee, loading, error, refetch } = useApiState(
     () => employeeService.get(id),
     [id]
   )
+
+  const handleDelete = async () => {
+    setDeleting(true)
+    try {
+      await employeeService.deactivate(employee.id)
+      toast.success(`${employee.name} deleted.`)
+      navigate('/employees')
+    } catch (err) {
+      toast.error(err.message || 'Could not delete this employee.')
+      setDeleting(false)
+      setConfirmDelete(false)
+    }
+  }
 
   const handleRelease = async () => {
     setReleasing(true)
@@ -172,6 +188,13 @@ export default function EmployeeDetailPage() {
                         {releasing ? 'Releasing…' : 'Release seat'}
                       </button>
                     )}
+                    <button
+                      onClick={() => setConfirmDelete(true)}
+                      disabled={deleting}
+                      className="flex h-[38px] flex-1 items-center justify-center rounded-[10px] bg-danger text-[13px] font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                    >
+                      {deleting ? 'Deleting…' : 'Delete employee'}
+                    </button>
                   </div>
                 )}
               </div>
@@ -179,6 +202,21 @@ export default function EmployeeDetailPage() {
           })()
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title="Delete this employee?"
+        message={
+          employee
+            ? `${employee.name} will be permanently removed. Any allocated seat is released and becomes available. This cannot be undone.`
+            : ''
+        }
+        confirmLabel="Delete employee"
+        variant="danger"
+        loading={deleting}
+      />
     </AppLayout>
   )
 }

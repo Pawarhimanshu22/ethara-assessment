@@ -43,9 +43,14 @@ export default function NewJoinerAllocationPage() {
   const onSelectEmployee = (e) => {
     const id = e.target.value
     const emp = employees.find((x) => String(x.id) === String(id))
+    pickEmployee(emp, id)
+  }
+
+  // Shared: prefill the form from a pending joiner (used by the dropdown and the list).
+  const pickEmployee = (emp, id = emp?.id) => {
     setForm((f) => ({
       ...f,
-      employeeId: id,
+      employeeId: id != null ? String(id) : f.employeeId,
       name: emp?.name || f.name,
       email: emp?.email || f.email,
       dept: emp?.department || emp?.dept || f.dept,
@@ -124,6 +129,47 @@ export default function NewJoinerAllocationPage() {
 
   return (
     <AppLayout title="New Joiner Allocation" subtitle="Seat new hires near their team">
+      {/* Pending joiners — visible list of names waiting for a seat */}
+      <div className="mx-auto mb-4 max-w-[1000px] rounded-2xl border border-surface-200 bg-white p-[22px] shadow-card">
+        <div className="mb-3 flex items-center gap-2.5">
+          <h3 className="font-display text-[16px] font-semibold text-surface-900">
+            Pending joiners
+          </h3>
+          <span className="rounded-full bg-warning-bg px-[9px] py-[3px] text-[11px] font-bold text-warning">
+            {employees.length}
+          </span>
+        </div>
+        {employees.length === 0 ? (
+          <p className="text-[12.5px] text-surface-400">No employees are currently pending allocation.</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {employees.map((emp) => {
+              const selected = String(form.employeeId) === String(emp.id)
+              return (
+                <button
+                  key={emp.id}
+                  type="button"
+                  onClick={() => pickEmployee(emp)}
+                  className={clsx(
+                    'flex flex-col items-start rounded-xl border px-3.5 py-2.5 text-left transition-colors',
+                    selected
+                      ? 'border-brand-300 bg-brand-50'
+                      : 'border-surface-200 bg-surface-50 hover:bg-surface-100'
+                  )}
+                >
+                  <span className="truncate text-[13.5px] font-semibold text-surface-900">
+                    {emp.name}
+                  </span>
+                  <span className="truncate text-[12px] text-surface-400">
+                    {[emp.employee_code, emp.department, emp.project_name].filter(Boolean).join(' · ')}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
       <div className="mx-auto grid max-w-[1000px] grid-cols-1 gap-4 lg:grid-cols-[1fr_1.1fr]">
         {/* Left: form */}
         <div className="rounded-2xl border border-surface-200 bg-white p-[22px] shadow-card">

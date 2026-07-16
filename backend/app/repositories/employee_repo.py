@@ -66,11 +66,26 @@ def update(db: Session, employee: Employee, update_data: dict) -> Employee:
 
 
 def soft_delete(db: Session, employee: Employee) -> Employee:
-    """Deactivate rather than hard-delete, per spec (DELETE /employees/{id} = 'Deactivate employee')."""
+    """Deactivate rather than hard-delete (kept for callers that only want to mark inactive)."""
     employee.status = EmployeeStatus.INACTIVE
     db.commit()
     db.refresh(employee)
     return employee
+
+
+def delete(db: Session, employee: Employee) -> None:
+    """
+    Hard-delete an employee and their allocation history rows.
+    Any ACTIVE seat must be released by the caller first (frees the seat) — here we just
+    clear history so the FK from seat_allocations.employee_id doesn't block the delete.
+    """
+    from app.models.seat_allocation import SeatAllocation
+
+    db.query(SeatAllocation).filter(SeatAllocation.employee_id == employee.id).delete(
+        synchronize_session=False
+    )
+    db.delete(employee)
+    db.commit()
 
 
 def count_pending_allocation(db: Session) -> int:

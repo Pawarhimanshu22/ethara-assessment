@@ -3,7 +3,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
-from app.core.database import Base, get_db
+from app.core.database import Base
+# Routes depend on app.api.deps.get_db — override THAT one (there is also a
+# separate app.core.database.get_db, which the routes do NOT use).
+from app.api.deps import get_db
 from app.main import app
 
 # Separate test DB — never run tests against your seeded dev/demo database
@@ -32,7 +35,16 @@ def client(db_session):
         finally:
             pass
 
+    # Authenticate every request as an ADMIN so role-protected write endpoints
+    # (create/update/delete/allocate/release) can be exercised in tests.
+    from app.api.deps import get_current_user
+    from app.models.user import User, UserRole
+
+    def override_current_user():
+        return User(id=1, email="admin@ethara.ai", role=UserRole.ADMIN)
+
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_current_user] = override_current_user
     yield TestClient(app)
     app.dependency_overrides.clear()
 

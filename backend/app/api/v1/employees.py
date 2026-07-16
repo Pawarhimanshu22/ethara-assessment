@@ -43,6 +43,6 @@ def update_employee(employee_id: int, payload: EmployeeUpdate, db: Session = Dep
 
 
 @router.delete("/{employee_id}", response_model=MessageResponse, dependencies=[Depends(require_hr_or_admin)])
-def deactivate_employee(employee_id: int, db: Session = Depends(get_db)):
-    employee = employee_service.deactivate_employee(db, employee_id)
-    return MessageResponse(message=f"Employee '{employee.name}' deactivated successfully")
+def delete_employee(employee_id: int, db: Session = Depends(get_db)):
+    name = employee_service.delete_employee(db, employee_id)
+    return MessageResponse(message=f"Employee '{name}' deleted successfully")

@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from app.models.seat import Seat, SeatStatus
 from app.models.seat_allocation import SeatAllocation, AllocationStatus
 from app.models.employee import Employee, EmployeeStatus
+from app.models.project import Project
 from app.core.exceptions import (
     NotFoundException,
     SeatUnavailableException,
@@ -27,8 +28,41 @@ def create_seat(db: Session, payload: SeatCreate) -> Seat:
         )
 
 
+def _attach_occupants(db: Session, seats: list[Seat]) -> list[Seat]:
+    """
+    Attach transient occupant fields (employee_id/employee_name/project_name) onto each
+    seat so SeatWithOccupantResponse can serialize who is sitting there. Batched — one query.
+    Occupant is the ACTIVE allocation for that seat, if any.
+    """
+    if not seats:
+        return seats
+
+    seat_ids = [s.id for s in seats]
+    rows = (
+        db.query(SeatAllocation.seat_id, Employee.id, Employee.name, Project.name)
+        .join(Employee, Employee.id == SeatAllocation.employee_id)
+        .outerjoin(Project, Project.id == SeatAllocation.project_id)
+        .filter(
+            SeatAllocation.seat_id.in_(seat_ids),
+            SeatAllocation.allocation_status == AllocationStatus.ACTIVE,
+        )
+        .all()
+    )
+    by_seat = {seat_id: (emp_id, emp_name, proj_name) for seat_id, emp_id, emp_name, proj_name in rows}
+
+    for s in seats:
+        occ = by_seat.get(s.id)
+        s.employee_id = occ[0] if occ else None
+        s.employee_name = occ[1] if occ else None
+        s.project_name = occ[2] if occ else None
+
+    return seats
+
+
 def search_seats(db, floor=None, zone=None, status=None, offset=0, limit=20):
-    return seat_repo.search(db, floor=floor, zone=zone, status=status, offset=offset, limit=limit)
+    items, total = seat_repo.search(db, floor=floor, zone=zone, status=status, offset=offset, limit=limit)
+    _attach_occupants(db, items)
+    return items, total
 
 
 def get_available_seats(db, floor=None, zone=None, limit=50):
