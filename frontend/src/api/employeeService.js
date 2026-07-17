@@ -1,8 +1,16 @@
 import api from './axios'
 
 // Backend EmployeeStatus enum values are UPPERCASE (ACTIVE / INACTIVE / PENDING_ALLOCATION).
-const normalizeBody = (payload = {}) =>
-  payload.status ? { ...payload, status: String(payload.status).toUpperCase() } : payload
+// project_id comes from a <select> as a string; empty ("Unassigned") must be null, not "".
+const normalizeBody = (payload = {}) => {
+  const body = { ...payload }
+  if (body.status) body.status = String(body.status).toUpperCase()
+  if ('project_id' in body) {
+    body.project_id =
+      body.project_id === '' || body.project_id == null ? null : Number(body.project_id)
+  }
+  return body
+}
 
 export const employeeService = {
   list: async (params = {}) => {
